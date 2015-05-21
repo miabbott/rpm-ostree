@@ -51,7 +51,6 @@ start_daemon (GDBusConnection *connection,
 {
   rpm_ostree_daemon = g_object_new (TYPE_DAEMON,
                                     "connection", connection,
-                                    "persist", opt_debug,
                                     "sysroot-path", opt_sysroot,
                                     "on-message-bus", on_messsage_bus,
                                     NULL);
