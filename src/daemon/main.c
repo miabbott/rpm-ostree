@@ -60,28 +60,43 @@ start_daemon (GDBusConnection *connection,
                     G_CALLBACK (on_close), NULL);
 }
 
-
 static void
-on_bus_acquired (GObject *source,
-                 GAsyncResult *res,
+on_bus_acquired (GDBusConnection *connection,
+                 const char *name,
                  gpointer user_data)
 {
-  GDBusConnection *connection;
-  GError *error = NULL;
-  connection = g_bus_get_finish (res, &error);
-  if (error != NULL)
+  g_debug ("Connected to the system bus");
+
+  start_daemon (connection, TRUE);
+}
+
+
+static void
+on_name_acquired (GDBusConnection *connection,
+                  const char *name,
+                  gpointer user_data)
+{
+  g_debug ("Acquired the name %s on the system bus", name);
+}
+
+static void
+on_name_lost (GDBusConnection *connection,
+              const char *name,
+              gpointer user_data)
+{
+  if (rpm_ostree_daemon == NULL)
     {
-      g_warning ("Couldn't connect to system bus: %s", error->message);
-      g_error_free (error);
-      g_main_loop_quit (loop);
+      g_critical ("Failed to connect to the system bus");
     }
   else
     {
-      g_debug ("Connected to the system bus");
-      start_daemon (connection, TRUE);
+      g_critical ("Lost (or failed to acquire) the "
+                  "name %s on the system bus", name);
     }
-}
 
+  /* XXX Maybe don't terminate immediately but decrement a use count? */
+  g_main_loop_quit (loop);
+}
 
 static void
 on_peer_acquired (GObject *source,
@@ -249,7 +264,7 @@ on_log_handler (const gchar *log_domain,
 
 
 static gboolean
-connect_to_bus_or_peer (void)
+connect_to_peer (int fd)
 {
   gs_unref_object GSocketConnection *stream = NULL;
   gs_unref_object GSocket *socket = NULL;
@@ -257,14 +272,7 @@ connect_to_bus_or_peer (void)
   gs_free gchar *guid = NULL;
   gboolean ret = FALSE;
 
-  if (service_dbus_fd == -1)
-    {
-      g_bus_get (G_BUS_TYPE_SYSTEM, NULL, &on_bus_acquired, NULL);
-      ret = TRUE;
-      goto out;
-    }
-
-  socket = g_socket_new_from_fd (service_dbus_fd, &error);
+  socket = g_socket_new_from_fd (fd, &error);
   if (error != NULL)
     {
       g_warning ("Couldn't create socket: %s", error->message);
@@ -298,6 +306,7 @@ main (int argc,
   GError *error;
   GOptionContext *opt_context;
   GIOChannel *channel;
+  guint name_owner_id = 0;
   gint ret;
 
   ret = 1;
@@ -354,7 +363,17 @@ main (int argc,
   g_unix_signal_add (SIGINT, on_sigint, NULL);
   g_unix_signal_add (SIGTERM, on_sigint, NULL);
 
-  if (!connect_to_bus_or_peer ())
+  if (service_dbus_fd == -1)
+    {
+      name_owner_id = g_bus_own_name (G_BUS_TYPE_SYSTEM,
+                                      DBUS_NAME,
+                                      G_BUS_NAME_OWNER_FLAGS_NONE,
+                                      on_bus_acquired,
+                                      on_name_acquired,
+                                      on_name_lost,
+                                      NULL, (GDestroyNotify) NULL);
+    }
+  else if (!connect_to_peer (service_dbus_fd))
     {
       ret = 1;
       goto out;
@@ -363,6 +382,12 @@ main (int argc,
   g_debug ("Entering main event loop");
 
   g_main_loop_run (loop);
+
+  if (name_owner_id > 0)
+    {
+      g_bus_unown_name (name_owner_id);
+      name_owner_id = 0;
+    }
 
   g_clear_object (&rpm_ostree_daemon);
 
