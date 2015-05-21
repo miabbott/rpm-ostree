@@ -55,6 +55,8 @@ start_daemon (GDBusConnection *connection,
                                     "on-message-bus", on_messsage_bus,
                                     NULL);
 
+  daemon_hold (rpm_ostree_daemon);
+
   g_signal_connect (rpm_ostree_daemon, "finished",
                     G_CALLBACK (on_close), NULL);
 }
@@ -86,15 +88,16 @@ on_name_lost (GDBusConnection *connection,
   if (rpm_ostree_daemon == NULL)
     {
       g_critical ("Failed to connect to the system bus");
+
+      g_main_loop_quit (loop);
     }
   else
     {
       g_critical ("Lost (or failed to acquire) the "
                   "name %s on the system bus", name);
-    }
 
-  /* XXX Maybe don't terminate immediately but decrement a use count? */
-  g_main_loop_quit (loop);
+      daemon_release (rpm_ostree_daemon);
+    }
 }
 
 static void

@@ -51,6 +51,7 @@ struct _Daemon
   GObject parent_instance;
 
   gboolean on_message_bus;
+  guint use_count;
 
   gint64 last_message;
   guint ticker_id;
@@ -277,4 +278,19 @@ gboolean
 daemon_on_message_bus (Daemon *self)
 {
   return self->on_message_bus;
+}
+
+void
+daemon_hold (Daemon *self)
+{
+  self->use_count++;
+}
+
+void
+daemon_release (Daemon *self)
+{
+  self->use_count--;
+
+  if (self->use_count == 0)
+    g_signal_emit (self, signals[FINISHED], 0);
 }
