@@ -55,7 +55,7 @@
       <arg type="as" name="packages"/>
     </method>
 
-    <method name="GetCachedRebaseRPMDiff">
+    <method name="GetCachedRebaseRpmDiff">
       <arg type="s" name="refspec"/>
       <arg type="as" name="packages"/>
       <arg type="a(sua{sv})" name="result" direction="out"/>
