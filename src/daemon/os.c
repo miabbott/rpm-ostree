@@ -150,7 +150,7 @@ osstub_handle_download_update_rpm_diff (RPMOSTreeOS *interface,
 
   /* FIXME Do locking here, make sure we have exclusive access. */
 
-  transaction = new_transaction (invocation, cancellable, &local_error);
+  transaction = new_transaction (invocation, cancellable, NULL, &local_error);
 
   if (local_error == NULL)
     {
@@ -182,7 +182,7 @@ osstub_handle_upgrade (RPMOSTreeOS *interface,
 
   /* FIXME Do locking here, make sure we have exclusive access. */
 
-  transaction = new_transaction (invocation, cancellable, &local_error);
+  transaction = new_transaction (invocation, cancellable, NULL, &local_error);
 
   if (local_error == NULL)
     {
@@ -214,7 +214,7 @@ osstub_handle_rollback (RPMOSTreeOS *interface,
 
   /* FIXME Do locking here, make sure we have exclusive access. */
 
-  transaction = new_transaction (invocation, cancellable, &local_error);
+  transaction = new_transaction (invocation, cancellable, NULL, &local_error);
 
   if (local_error == NULL)
     {
@@ -246,7 +246,7 @@ osstub_handle_clear_rollback_target (RPMOSTreeOS *interface,
 
   /* FIXME Do locking here, make sure we have exclusive access. */
 
-  transaction = new_transaction (invocation, cancellable, &local_error);
+  transaction = new_transaction (invocation, cancellable, NULL, &local_error);
 
   if (local_error == NULL)
     {
@@ -302,7 +302,7 @@ osstub_handle_download_rebase_rpm_diff (RPMOSTreeOS *interface,
 
   /* FIXME Do locking here, make sure we have exclusive access. */
 
-  transaction = new_transaction (invocation, cancellable, &local_error);
+  transaction = new_transaction (invocation, cancellable, NULL, &local_error);
 
   if (local_error == NULL)
     {
