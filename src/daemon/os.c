@@ -123,6 +123,16 @@ osstub_class_init (OSStubClass *klass)
   gobject_class->set_property = osstub_set_property;
   gobject_class->get_property = osstub_get_property;
   gobject_class->dispose = osstub_dispose;
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_SYSROOT,
+                                   g_param_spec_object ("sysroot",
+                                                        NULL,
+                                                        NULL,
+                                                        OSTREE_TYPE_SYSROOT,
+                                                        G_PARAM_READWRITE |
+                                                        G_PARAM_CONSTRUCT_ONLY |
+                                                        G_PARAM_STATIC_STRINGS));
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
