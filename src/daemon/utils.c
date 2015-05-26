@@ -119,7 +119,7 @@ new_transaction (GDBusMethodInvocation *invocation,
   const char *method_name;
   const char *object_path;
   const char *sender;
-  g_autofree gchar *child_object_path;
+  g_autofree gchar *child_object_path = NULL;
 
   g_return_val_if_fail (G_IS_DBUS_METHOD_INVOCATION (invocation), FALSE);
 
