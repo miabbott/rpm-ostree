@@ -217,9 +217,15 @@ handle_get_os (RPMOSTreeSysroot *object,
                const char *arg_name)
 {
   Sysroot *self = SYSROOT (object);
-  GDBusObject *os_object;
+  glnx_unref_object GDBusObject *os_object = NULL;
+
+  g_rw_lock_reader_lock (&self->children_lock);
 
   os_object = g_hash_table_lookup (self->os_interfaces, arg_name);
+  if (os_object != NULL)
+    g_object_ref (os_object);
+
+  g_rw_lock_reader_unlock (&self->children_lock);
 
   if (os_object != NULL)
     {
