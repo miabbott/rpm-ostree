@@ -100,6 +100,12 @@ rpmostree_db_builtin_list (int argc, char **argv, GCancellable *cancellable, GEr
                                           cancellable, error))
     goto out;
 
+  if (argc < 2)
+    {
+      rpmostree_usage_error (context, "COMMIT must be specified", error);
+      goto out;
+    }
+
   /* Iterate over all arguments. When we see the first argument which
    * appears to be an OSTree commit, take all other arguments to be
    * patterns.
