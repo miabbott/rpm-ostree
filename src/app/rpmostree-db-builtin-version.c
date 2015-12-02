@@ -107,7 +107,8 @@ rpmostree_db_builtin_version (int argc, char **argv, GCancellable *cancellable, 
 
   if (argc < 2)
     {
-      rpmostree_usage_error (context, "COMMIT must be specified", error)
+      rpmostree_usage_error (context, "COMMIT must be specified", error);
+      goto out;
     }
 
   revs = g_ptr_array_new ();
