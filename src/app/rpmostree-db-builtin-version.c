@@ -22,6 +22,7 @@
 
 #include "rpmostree-db-builtins.h"
 #include "rpmostree-rpm-util.h"
+#include "rpmostree-libbuiltin.h"
 
 static GOptionEntry db_version_entries[] = {
   { NULL }
